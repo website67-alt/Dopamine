@@ -1,1 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dopamine - Feel the Sound</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+  <style>
+    :root {
+      --bg-base: #0b0712;
+      --bg-surface: #140d21;
+      --bg-card: #1c132e;
+      --bg-card-hover: #291b42;
+      --accent-primary: #9d4edd;
+      --accent-secondary: #ff2a85;
+      --accent-gradient: linear-gradient(135deg, #9d4edd 0%, #ff2a85 100%);
+      --text-main: #ffffff;
+      --text-muted: #a395b8;
+      --border-color: rgba(157, 78, 221, 0.2);
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(157, 78, 221, 0.3);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-primary);
+    }
+
+    /* Gradient Text Utility */
+    .text-gradient {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Equalizer Bar Animation */
+    .eq-bar {
+      width: 3px;
+      background: var(--accent-secondary);
+      border-radius: 2px;
+      animation: eqBounce 0.8s ease infinite alternate;
+    }
+    .eq-bar:nth-child(1) { animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { animation-delay: 0.4s; }
+    .eq-bar:nth-child(3) { animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { animation-delay: 0.5s; }
+
+    @keyframes eqBounce {
+      0% { height: 4px; }
+      100% { height: 18px; }
+    }
+
+    /* Glassmorphism Utilities */
+    .glass-panel {
+      background: rgba(20, 13, 33, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Active Nav Styling */
+    .nav-link.active {
+      background-color: rgba(157, 78, 221, 0.18);
+      color: #ffffff;
+      border-left: 4px solid var(--accent-secondary);
+    }
+
+    /* Active Lyric Line */
+    .lyric-line {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .lyric-line.active-lyric {
+      color: #ffffff;
+      font-size: 1.5rem;
+      font-weight: 800;
+      text-shadow: 0 0 15px rgba(255, 42, 133, 0.6);
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen select-none antialiased">
+
+  <div class="flex flex-1 h-[calc(100vh-90px)] overflow-hidden">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-[#140d21] border-r border-[#9d4edd]/20 flex flex-col justify-between p-4 flex-shrink-0 z-20">
+      <div class="flex flex-col gap-6">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 px-2 cursor-pointer" onclick="switchTab('home')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#9d4edd] to-[#ff2a85] flex items-center justify-center shadow-lg shadow-[#ff2a85]/30">
+            <i class="fa-solid fa-bolt text-white text-xl"></i>
+          </div>
+          <span class="text-2xl font-black tracking-tight text-gradient">Dopamine</span>
+        </div>
+
+        <!-- Primary Navigation -->
+        <nav class="flex flex-col gap-1">
+          <button onclick="switchTab('home')" id="nav-home" class="nav-link active flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-[#a395b8] hover:text-white hover:bg-[#1c132e] transition-all">
+            <i class="fa-solid fa-house text-lg w-5"></i> Home
+          </button>
+          <button onclick="switchTab('search')" id="nav-search" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-[#a395b8] hover:text-white hover:bg-[#1c132e] transition-all">
+            <i class="fa-solid fa-magnifying-glass text-lg w-5"></i> Search
+          </button>
+          <button onclick="switchTab('library')" id="nav-library" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-[#a395b8] hover:text-white hover:bg-[#1c132e] transition-all">
+            <i class="fa-solid fa-layer-group text-lg w-5"></i> Your Library
+          </button>
+          <button onclick="switchTab('lyrics')" id="nav-lyrics" class="nav-link flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-semibold text-[#a395b8] hover:text-white hover:bg-[#1c132e] transition-all">
+            <i class="fa-solid fa-quote-right text-lg w-5"></i> Lyrics Sync
+          </button>
+        </nav>
+
+        <hr class="border-[#9d4edd]/15">
+
+        <!-- Custom Playlists Section -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between px-2 text-xs font-bold uppercase tracking-wider text-[#a395b8]">
+            <span>Playlists</span>
+            <button onclick="openCreatePlaylistModal()" class="hover:text-white transition-colors" title="Create Playlist">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+          <div id="sidebarPlaylistsList" class="flex flex-col gap-1 max-h-40 overflow-y-auto pr-1">
+            <!-- Playlist items injected here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Sidebar Actions -->
+      <div class="flex flex-col gap-3">
+        <!-- Local Upload Button -->
+        <label for="localFileInput" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#1c132e] hover:bg-[#291b42] text-white border border-[#9d4edd]/30 rounded-xl text-xs font-bold cursor-pointer transition-all shadow-md">
+          <i class="fa-solid fa-cloud-arrow-up text-[#ff2a85]"></i> Upload Local Songs
+        </label>
+        <input type="file" id="localFileInput" accept="audio/*" multiple class="hidden" onchange="handleLocalFileUpload(event)">
+
+        <!-- Upgrade VIP Card -->
+        <div id="sidebarUpgradeBanner" class="p-3.5 rounded-2xl bg-gradient-to-br from-[#9d4edd]/20 to-[#ff2a85]/20 border border-[#ff2a85]/40 flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-crown text-[#ff2a85]"></i>
+            <span class="text-xs font-bold text-white">Unlock All Hits</span>
+          </div>
+          <p class="text-[11px] text-[#a395b8] leading-tight">Get full access to all 14 tracks & ad-free streaming.</p>
+          <button onclick="openSubModal()" class="w-full py-2 bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] text-white rounded-xl text-xs font-extrabold hover:brightness-110 shadow-md shadow-[#ff2a85]/20 transition-all">
+            Upgrade Pass
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 bg-gradient-to-b from-[#1a0f30] via-[#0b0712] to-[#0b0712] flex flex-col overflow-y-auto relative p-8 gap-8" id="mainContentContainer">
+      
+      <!-- Top Sticky Bar -->
+      <header class="sticky top-0 z-30 flex items-center justify-between gap-4 py-2 glass-panel -mx-8 -mt-8 px-8 mb-2 border-b border-[#9d4edd]/15">
+        <div class="relative w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-[#a395b8] text-sm"></i>
+          <input type="text" id="searchInput" placeholder="Search artists, songs, albums..." onkeyup="handleSearch()" class="w-full bg-[#1c132e] border border-[#9d4edd]/20 rounded-full py-2 pl-10 pr-4 text-xs font-medium text-white focus:outline-none focus:border-[#ff2a85] transition-all">
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div id="userBadge" class="px-3 py-1 rounded-full bg-[#ff2a85]/15 border border-[#ff2a85] text-[#ff2a85] text-[10px] font-extrabold tracking-wider uppercase">
+            Free Tier
+          </div>
+          <div class="flex items-center gap-3 bg-[#1c132e] px-3 py-1.5 rounded-full border border-[#9d4edd]/20">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] flex items-center justify-center text-white text-xs font-black">
+              U
+            </div>
+            <span class="text-xs font-bold text-white">Music Lover</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div id="viewContainer" class="flex flex-col gap-8 pb-12">
+        <!-- Content dynamically rendered via JS -->
+      </div>
+    </main>
+  </div>
+
+  <footer class="h-[90px] bg-[#140d21] border-t border-[#9d4edd]/20 px-6 flex items-center justify-between z-50 relative">
+    
+    <!-- Track Info Section -->
+    <div class="flex items-center gap-4 w-1/4 min-w-[200px]">
+      <div class="relative group">
+        <img id="playerCover" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=150" class="w-14 h-14 rounded-xl object-cover shadow-md shadow-black/50 border border-[#9d4edd]/20" alt="Cover">
+        <button onclick="switchTab('lyrics')" class="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition-opacity" title="View Lyrics">
+          <i class="fa-solid fa-quote-right"></i>
+        </button>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <div id="playerTitle" class="text-sm font-bold text-white truncate hover:underline cursor-pointer" onclick="switchTab('lyrics')">Select a track</div>
+        <div id="playerArtist" class="text-xs font-medium text-[#a395b8] truncate">Dopamine Catalog</div>
+      </div>
+    </div>
+
+    <!-- Center Audio Playback Controls -->
+    <div class="flex flex-col items-center gap-2 w-2/4 max-w-2xl">
+      <div class="flex items-center gap-6">
+        <button onclick="toggleShuffle()" id="shuffleBtn" class="text-[#a395b8] hover:text-white transition-colors text-sm" title="Shuffle">
+          <i class="fa-solid fa-shuffle"></i>
+        </button>
+        <button onclick="playPrev()" class="text-[#a395b8] hover:text-white transition-colors text-base" title="Previous">
+          <i class="fa-solid fa-backward-step"></i>
+        </button>
+        <button onclick="togglePlayPause()" id="mainPlayBtn" class="w-10 h-10 rounded-full bg-white text-[#0b0712] flex items-center justify-center text-base hover:scale-105 active:scale-95 transition-all shadow-lg shadow-white/10">
+          <i class="fa-solid fa-play ml-0.5"></i>
+        </button>
+        <button onclick="playNext()" class="text-[#a395b8] hover:text-white transition-colors text-base" title="Next">
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+        <button onclick="toggleRepeat()" id="repeatBtn" class="text-[#a395b8] hover:text-white transition-colors text-sm" title="Repeat">
+          <i class="fa-solid fa-repeat"></i>
+        </button>
+      </div>
+
+      <!-- Seek Bar -->
+      <div class="flex items-center gap-3 w-full">
+        <span id="currentTime" class="text-[11px] font-semibold text-[#a395b8] w-8 text-right">0:00</span>
+        <div class="flex-1 h-1.5 bg-[#1c132e] hover:h-2.5 rounded-full cursor-pointer relative group transition-all" onclick="seekTrack(event)" id="seekBar">
+          <div id="progressFill" class="h-full bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] rounded-full w-0 relative">
+            <div class="w-3 h-3 bg-white rounded-full absolute -right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 shadow-md transition-opacity"></div>
+          </div>
+        </div>
+        <span id="durationTime" class="text-[11px] font-semibold text-[#a395b8] w-8">0:00</span>
+      </div>
+    </div>
+
+    <!-- Right Controls (Equalizer & Volume) -->
+    <div class="flex items-center justify-end gap-5 w-1/4 min-w-[200px]">
+      <!-- Equalizer Visualizer Animation -->
+      <div id="eqVisualizer" class="hidden items-end gap-1 h-5">
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+      </div>
+
+      <!-- Volume Bar -->
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-volume-high text-[#a395b8] text-xs"></i>
+        <div class="w-20 h-1.5 bg-[#1c132e] hover:h-2.5 rounded-full cursor-pointer relative group transition-all" onclick="setVolume(event)">
+          <div id="volumeFill" class="h-full bg-[#9d4edd] rounded-full w-4/5 relative">
+            <div class="w-2.5 h-2.5 bg-white rounded-full absolute -right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 shadow-md transition-opacity"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- HTML5 Native Audio Engine -->
+  <audio id="audioEngine"></audio>
+
+  <!-- Premium Subscription Modal -->
+  <div id="subModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-[#1c132e] border border-[#9d4edd]/30 rounded-3xl p-8 max-w-lg w-full relative flex flex-col items-center text-center shadow-2xl shadow-[#ff2a85]/20">
+      <button onclick="closeSubModal()" class="absolute top-5 right-5 text-[#a395b8] hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#9d4edd] to-[#ff2a85] flex items-center justify-center shadow-xl shadow-[#ff2a85]/30 mb-4">
+        <i class="fa-solid fa-crown text-3xl text-white"></i>
+      </div>
+
+      <h2 class="text-2xl font-black text-white">Dopamine Premium Pass</h2>
+      <p class="text-xs text-[#a395b8] mt-2 max-w-xs leading-relaxed">
+        Unlock all 14 exclusive tracks from The Weeknd, Drake, Travis Scott, and Lil Tecca with ad-free HQ streaming.
+      </p>
+
+      <div class="grid grid-cols-2 gap-4 w-full mt-6">
+        <div onclick="selectPassPlan('monthly')" id="planMonthly" class="border-2 border-[#9d4edd]/30 rounded-2xl p-4 cursor-pointer hover:border-[#ff2a85] transition-all bg-[#140d21] flex flex-col items-center">
+          <span class="text-xs font-bold text-[#a395b8]">Monthly Pass</span>
+          <div class="text-2xl font-black text-white my-1">₹69 <span class="text-xs text-[#a395b8] font-normal">/mo</span></div>
+          <span class="text-[10px] text-[#a395b8]">Cancel anytime</span>
+        </div>
+
+        <div onclick="selectPassPlan('yearly')" id="planYearly" class="border-2 border-[#ff2a85] rounded-2xl p-4 cursor-pointer transition-all bg-[#291b42] flex flex-col items-center relative">
+          <span class="absolute -top-2.5 bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+            Best Value
+          </span>
+          <span class="text-xs font-bold text-[#a395b8]">Yearly Pass</span>
+          <div class="text-2xl font-black text-[#ff2a85] my-1">₹299 <span class="text-xs text-[#a395b8] font-normal">/yr</span></div>
+          <span class="text-[10px] text-[#a395b8]">Save over 60%</span>
+        </div>
+      </div>
+
+      <button onclick="processPaymentSimulator()" class="w-full py-3.5 bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] text-white font-extrabold rounded-2xl text-sm mt-6 hover:brightness-110 shadow-lg shadow-[#ff2a85]/30 transition-all">
+        Activate Premium Now
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Playlist Modal -->
+  <div id="playlistModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-[#1c132e] border border-[#9d4edd]/30 rounded-3xl p-6 max-w-sm w-full flex flex-col gap-4 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-white">Create New Playlist</h3>
+        <button onclick="closePlaylistModal()" class="text-[#a395b8] hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <input type="text" id="playlistNameInput" placeholder="My Vibe Playlist..." class="w-full bg-[#140d21] border border-[#9d4edd]/20 rounded-xl py-2.5 px-4 text-xs font-medium text-white focus:outline-none focus:border-[#ff2a85]">
+      <button onclick="confirmCreatePlaylist()" class="w-full py-2.5 bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] text-white font-bold rounded-xl text-xs hover:brightness-110 transition-all">
+        Create Playlist
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // System State Variables
+    let isPremium = false;
+    let selectedPass = 'yearly';
+    let currentTrack = null;
+    let isPlaying = false;
+    let isShuffle = false;
+    let isRepeat = false;
+    let activeTab = 'home';
+
+    // Native Audio Engine Initialization
+    const audio = document.getElementById('audioEngine');
+    
+    // Custom Playlists State
+    let playlists = [
+      { id: 'pl1', name: 'Late Night Vibe', tracks: ['tw1', 'dr1', 'tr1'] },
+      { id: 'pl2', name: 'Rap Favorites', tracks: ['lt1', 'lt2', 'dr2'] }
+    ];
+
+    // Master Catalog Data (14 Songs total across 4 Artists)
+    const masterCatalog = [
+      // The Weeknd (4 tracks)
+      {
+        id: "tw1",
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        album: "After Hours",
+        cover: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        duration: "3:20",
+        free: true,
+        artistId: "weeknd",
+        lyrics: [
+          { time: 0, text: "(Synth Intro Starts)" },
+          { time: 10, text: "I've been tryna call" },
+          { time: 15, text: "I've been on my own for long enough" },
+          { time: 22, text: "Maybe you can show me how to love, maybe" },
+          { time: 30, text: "I'm going through withdrawals" },
+          { time: 36, text: "You don't even have to do too much" },
+          { time: 42, text: "You can turn me on with just a touch, baby" },
+          { time: 50, text: "I look around and Sin City's cold and empty" },
+          { time: 58, text: "No one's around to judge me" },
+          { time: 64, text: "I can't see clearly when you're gone" },
+          { time: 70, text: "I said, ooh, I'm blinded by the lights!" }
+        ]
+      },
+      {
+        id: "tw2",
+        title: "Starboy",
+        artist: "The Weeknd",
+        album: "Starboy",
+        cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        duration: "3:50",
+        free: true,
+        artistId: "weeknd",
+        lyrics: [
+          { time: 0, text: "I'm tryna put you in the worst mood, ah" },
+          { time: 12, text: "P1 cleaner than your church shoes, ah" },
+          { time: 20, text: "Milli point two just to hurt you, ah" },
+          { time: 28, text: "All red Lamb' just to tease you, ah" },
+          { time: 36, text: "Look what you've done, I'm a Starboy!" }
+        ]
+      },
+      {
+        id: "tw3",
+        title: "Save Your Tears",
+        artist: "The Weeknd",
+        album: "After Hours",
+        cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        duration: "3:35",
+        free: false,
+        artistId: "weeknd",
+        lyrics: [
+          { time: 0, text: "I saw you dancing in a crowded room" },
+          { time: 12, text: "You look so happy when I'm not with you" },
+          { time: 24, text: "Save your tears for another day!" }
+        ]
+      },
+      {
+        id: "tw4",
+        title: "The Hills",
+        artist: "The Weeknd",
+        album: "Beauty Behind The Madness",
+        cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+        duration: "4:02",
+        free: false,
+        artistId: "weeknd",
+        lyrics: [
+          { time: 0, text: "Your man on the road, he doing promo" },
+          { time: 15, text: "I only call you when it's half past five" },
+          { time: 30, text: "I only love it when you touch me, not feel me" }
+        ]
+      },
+
+      // Drake (3 tracks)
+      {
+        id: "dr1",
+        title: "God's Plan",
+        artist: "Drake",
+        album: "Scorpion",
+        cover: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+        duration: "3:18",
+        free: true,
+        artistId: "drake",
+        lyrics: [
+          { time: 0, text: "Yeah, they wishin' and wishin' and wishin' and wishin'" },
+          { time: 10, text: "They wishin' on me, yeah" },
+          { time: 18, text: "God's plan, God's plan" },
+          { time: 25, text: "I hold back, sometimes I won't, yeah" },
+          { time: 32, text: "I feel good, sometimes I don't, ayy" }
+        ]
+      },
+      {
+        id: "dr2",
+        title: "Hotline Bling",
+        artist: "Drake",
+        album: "Views",
+        cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+        duration: "4:27",
+        free: false,
+        artistId: "drake",
+        lyrics: [
+          { time: 0, text: "You used to call me on my cell phone" },
+          { time: 10, text: "Late night when you need my love" },
+          { time: 20, text: "Call me on my cell phone" },
+          { time: 30, text: "And I know when that hotline bling!" }
+        ]
+      },
+      {
+        id: "dr3",
+        title: "One Dance",
+        artist: "Drake",
+        album: "Views",
+        cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+        duration: "2:53",
+        free: false,
+        artistId: "drake",
+        lyrics: [
+          { time: 0, text: "Baby, I like your style" },
+          { time: 12, text: "Grip on your waist, front way, back way" },
+          { time: 22, text: "One more time 'fore I go" }
+        ]
+      },
+
+      // Travis Scott (3 tracks)
+      {
+        id: "tr1",
+        title: "FE!N",
+        artist: "Travis Scott",
+        album: "UTOPIA",
+        cover: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+        duration: "3:11",
+        free: true,
+        artistId: "travis",
+        lyrics: [
+          { time: 0, text: "Just come outside for the night" },
+          { time: 10, text: "Take your time, get it right" },
+          { time: 18, text: "FE!N! FE!N! FE!N! FE!N!" },
+          { time: 28, text: "The career's more at stake than you think" }
+        ]
+      },
+      {
+        id: "tr2",
+        title: "SICKO MODE",
+        artist: "Travis Scott",
+        album: "ASTROWORLD",
+        cover: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+        duration: "5:12",
+        free: false,
+        artistId: "travis",
+        lyrics: [
+          { time: 0, text: "Astro, yeah" },
+          { time: 10, text: "Sun is down, freezin' cold" },
+          { time: 20, text: "That's how you know already, know it's time, yeah" },
+          { time: 30, text: "Made this here with one glance, yeah!" }
+        ]
+      },
+      {
+        id: "tr3",
+        title: "Goosebumps",
+        artist: "Travis Scott",
+        album: "Birds in the Trap",
+        cover: "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+        duration: "4:03",
+        free: false,
+        artistId: "travis",
+        lyrics: [
+          { time: 0, text: "I get those goosebumps every time, yeah" },
+          { time: 12, text: "You come around, yeah" },
+          { time: 22, text: "You ease my mind, you make everything feel fine" }
+        ]
+      },
+
+      // Lil Tecca (4 tracks)
+      {
+        id: "lt1",
+        title: "Ransom",
+        artist: "Lil Tecca",
+        album: "We Love You Tecca",
+        cover: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
+        duration: "2:11",
+        free: true,
+        artistId: "tecca",
+        lyrics: [
+          { time: 0, text: "I got black, I got white, what you want?" },
+          { time: 8, text: "Hop outside a Ghost and hop up in a Phantom" },
+          { time: 16, text: "I know I'm bout to blow, I ain't dumb" },
+          { time: 24, text: "They try to take my flow, I take their ransom!" }
+        ]
+      },
+      {
+        id: "lt2",
+        title: "500 lbs",
+        artist: "Lil Tecca",
+        album: "TEC",
+        cover: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
+        duration: "2:24",
+        free: true,
+        artistId: "tecca",
+        lyrics: [
+          { time: 0, text: "Yeah, I was down for a minute, now I'm up" },
+          { time: 10, text: "500 lbs on the scale, don't give a what" },
+          { time: 20, text: "Count up the racks, put em right in the truck" }
+        ]
+      },
+      {
+        id: "lt3",
+        title: "Did It Again",
+        artist: "Lil Tecca",
+        album: "We Love You Tecca",
+        cover: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3",
+        duration: "1:56",
+        free: false,
+        artistId: "tecca",
+        lyrics: [
+          { time: 0, text: "Yeah, I did it again" },
+          { time: 8, text: "I just walked up in the store and spent ten" },
+          { time: 16, text: "Yeah, we winnin' again!" }
+        ]
+      },
+      {
+        id: "lt4",
+        title: "LOT OF ME",
+        artist: "Lil Tecca",
+        album: "We Love You Tecca 2",
+        cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300",
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3",
+        duration: "2:04",
+        free: false,
+        artistId: "tecca",
+        lyrics: [
+          { time: 0, text: "It's a lot of me to handle" },
+          { time: 10, text: "Light up the room like a candle" }
+        ]
+      }
+    ];
+
+    // Local Tracks Array for User Uploads
+    let localTracks = [];
+
+    // Combine Master Catalog + Local Tracks
+    function getFullCatalog() {
+      return [...masterCatalog, ...localTracks];
+    }
+
+    window.onload = () => {
+      renderSidebarPlaylists();
+      switchTab('home');
+
+      // Audio Event Listeners
+      audio.addEventListener('timeupdate', updatePlaybackProgress);
+      audio.addEventListener('ended', () => {
+        if (isRepeat) {
+          audio.currentTime = 0;
+          audio.play();
+        } else {
+          playNext();
+        }
+      });
+    };
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      const activeNav = document.getElementById(`nav-${tab}`);
+      if (activeNav) activeNav.classList.add('active');
+
+      const container = document.getElementById('viewContainer');
+      if (tab === 'home') container.innerHTML = renderHomeView();
+      else if (tab === 'search') container.innerHTML = renderSearchView();
+      else if (tab === 'library') container.innerHTML = renderLibraryView();
+      else if (tab === 'lyrics') container.innerHTML = renderLyricsView();
+    }
+
+    // Render Views
+    function renderHomeView() {
+      return `
+        <!-- Hero Banner -->
+        <div class="relative rounded-3xl overflow-hidden p-8 bg-gradient-to-r from-[#9d4edd] to-[#ff2a85] flex items-center justify-between shadow-2xl shadow-[#ff2a85]/20">
+          <div class="z-10 max-w-lg flex flex-col gap-2">
+            <span class="text-xs font-black uppercase tracking-widest text-white/80">Exclusive Catalog</span>
+            <h1 class="text-3xl font-black text-white leading-tight">Feel The Dopamine Rush</h1>
+            <p class="text-xs text-white/90 leading-relaxed">Stream top hits from The Weeknd, Drake, Travis Scott, & Lil Tecca in lossless high fidelity.</p>
+            <div class="flex items-center gap-3 mt-2">
+              <button onclick="playTrack('${masterCatalog[0].id}')" class="px-5 py-2.5 bg-white text-[#0b0712] rounded-xl text-xs font-black hover:scale-105 transition-all shadow-lg">
+                <i class="fa-solid fa-play mr-1.5"></i> Play Top Track
+              </button>
+              <button onclick="openSubModal()" class="px-5 py-2.5 bg-black/30 border border-white/30 text-white rounded-xl text-xs font-black hover:bg-black/50 transition-all">
+                View VIP Pass
+              </button>
+            </div>
+          </div>
+          <i class="fa-solid fa-compact-disc text-9xl text-white/10 absolute -right-4 -bottom-8 transform rotate-12 pointer-events-none"></i>
+        </div>
+
+        <!-- Featured Artists Cards -->
+        <div class="flex flex-col gap-4">
+          <h2 class="text-lg font-bold text-white">Featured Artists</h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            ${renderArtistCard('The Weeknd', 'weeknd', 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300')}
+            ${renderArtistCard('Drake', 'drake', 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=300')}
+            ${renderArtistCard('Travis Scott', 'travis', 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=300')}
+            ${renderArtistCard('Lil Tecca', 'tecca', 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300')}
+          </div>
+        </div>
+
+        <!-- Trending Hits Table -->
+        <div class="flex flex-col gap-4">
+          <h2 class="text-lg font-bold text-white">Trending Hits</h2>
+          ${renderTrackTable(masterCatalog)}
+        </div>
+      `;
+    }
+
+    function renderArtistCard(name, artistId, cover) {
+      return `
+        <div onclick="filterByArtist('${artistId}', '${name}')" class="p-4 bg-[#140d21] hover:bg-[#1c132e] border border-[#9d4edd]/15 rounded-2xl cursor-pointer transition-all flex flex-col items-center text-center group">
+          <div class="w-28 h-28 rounded-full overflow-hidden mb-3 relative shadow-lg shadow-black/50 border-2 border-[#9d4edd]/30">
+            <img src="${cover}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              <i class="fa-solid fa-play text-white text-xl"></i>
+            </div>
+          </div>
+          <span class="text-sm font-bold text-white truncate w-full">${name}</span>
+          <span class="text-[11px] font-medium text-[#a395b8]">Artist</span>
+        </div>
+      `;
+    }
+
+    function renderSearchView() {
+      return `
+        <div class="flex flex-col gap-4">
+          <h2 class="text-lg font-bold text-white">Search Music Catalog</h2>
+          <div id="searchResults">
+            ${renderTrackTable(getFullCatalog())}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLibraryView() {
+      return `
+        <div class="flex flex-col gap-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-extrabold text-white">Your Music Library</h2>
+              <p class="text-xs text-[#a395b8]">Unlocked tracks, custom playlists, and local files</p>
+            </div>
+          </div>
+
+          <!-- Unlocked Songs Section -->
+          <div class="flex flex-col gap-3">
+            <h3 class="text-sm font-bold text-white">Unlocked / Free Catalog Songs</h3>
+            ${renderTrackTable(isPremium ? getFullCatalog() : masterCatalog.filter(t => t.free))}
+          </div>
+
+          <!-- Local Uploaded Songs Section -->
+          ${localTracks.length > 0 ? `
+            <div class="flex flex-col gap-3 mt-4">
+              <h3 class="text-sm font-bold text-white">Your Local Uploaded Tracks</h3>
+              ${renderTrackTable(localTracks)}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderLyricsView() {
+      if (!currentTrack) {
+        return `
+          <div class="flex flex-col items-center justify-center h-80 gap-3 text-center">
+            <i class="fa-solid fa-quote-right text-5xl text-[#a395b8]/30"></i>
+            <h3 class="text-lg font-bold text-white">No Track Playing</h3>
+            <p class="text-xs text-[#a395b8]">Play a song to view synchronized interactive lyrics!</p>
+          </div>
+        `;
+      }
+
+      const lyrics = currentTrack.lyrics || [{ time: 0, text: "Lyrics unavailable for this song." }];
+
+      return `
+        <div class="flex flex-col md:flex-row items-center md:items-start gap-8 py-4">
+          <!-- Album Cover Left -->
+          <div class="flex flex-col items-center text-center gap-4 w-64 flex-shrink-0">
+            <img src="${currentTrack.cover}" class="w-56 h-56 rounded-2xl object-cover shadow-2xl border-2 border-[#ff2a85]/40 shadow-[#ff2a85]/20">
+            <div>
+              <h2 class="text-xl font-extrabold text-white">${currentTrack.title}</h2>
+              <p class="text-sm font-medium text-[#a395b8] mt-1">${currentTrack.artist}</p>
+            </div>
+          </div>
+
+          <!-- Synchronized Interactive Lyrics Display Right -->
+          <div class="flex-1 w-full bg-[#140d21] border border-[#9d4edd]/20 rounded-3xl p-6 h-96 overflow-y-auto flex flex-col gap-6 text-center" id="lyricsContainer">
+            ${lyrics.map((l, i) => `
+              <div onclick="jumpToLyricTime(${l.time})" id="lyric-${i}" class="lyric-line text-[#a395b8] hover:text-white cursor-pointer font-bold text-sm tracking-wide">
+                ${l.text}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Helper Table Renderer for Track Lists
+    function renderTrackTable(tracks) {
+      if (tracks.length === 0) {
+        return `<div class="p-8 text-center text-xs text-[#a395b8]">No songs found.</div>`;
+      }
+
+      return `
+        <div class="bg-[#140d21] border border-[#9d4edd]/20 rounded-2xl overflow-hidden">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-[#9d4edd]/15 text-[11px] font-bold text-[#a395b8] uppercase tracking-wider">
+                <th class="p-3 pl-4 w-10">#</th>
+                <th class="p-3">Title</th>
+                <th class="p-3 hidden sm:table-cell">Album</th>
+                <th class="p-3 text-right pr-4">Duration</th>
+                <th class="p-3 w-12"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#9d4edd]/10 text-xs">
+              ${tracks.map((track, i) => {
+                const isLocked = !track.free && !isPremium && !track.isLocal;
+                return `
+                  <tr class="hover:bg-[#1c132e] cursor-pointer group transition-colors" onclick="playTrack('${track.id}')">
+                    <td class="p-3 pl-4 text-[#a395b8] font-medium">${i + 1}</td>
+                    <td class="p-3">
+                      <div class="flex items-center gap-3">
+                        <img src="${track.cover}" class="w-10 h-10 rounded-lg object-cover">
+                        <div class="flex flex-col">
+                          <span class="font-bold text-white flex items-center gap-1.5">
+                            ${track.title}
+                            ${isLocked ? '<i class="fa-solid fa-lock text-[#ffb703] text-[10px]" title="Premium Required"></i>' : ''}
+                            ${track.free ? '<span class="text-[9px] bg-[#9d4edd]/20 text-[#9d4edd] font-extrabold px-1.5 py-0.5 rounded">FREE</span>' : ''}
+                          </span>
+                          <span class="text-[11px] text-[#a395b8]">${track.artist}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="p-3 text-[#a395b8] hidden sm:table-cell">${track.album || 'Single'}</td>
+                    <td class="p-3 text-right pr-4 text-[#a395b8] font-mono">${track.duration}</td>
+                    <td class="p-3" onclick="event.stopPropagation()">
+                      <button onclick="openAddToPlaylistMenu(event, '${track.id}')" class="text-[#a395b8] hover:text-white p-1" title="Add to playlist">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function playTrack(trackId) {
+      const fullCatalog = getFullCatalog();
+      const track = fullCatalog.find(t => t.id === trackId);
+      if (!track) return;
+
+      // Premium Lock Guard
+      if (!track.free && !isPremium && !track.isLocal) {
+        openSubModal();
+        return;
+      }
+
+      currentTrack = track;
+      audio.src = track.audioUrl;
+      audio.play().catch(e => console.log("Audio play error", e));
+      isPlaying = true;
+
+      // Update Player Controls UI
+      document.getElementById('playerCover').src = track.cover;
+      document.getElementById('playerTitle').innerText = track.title;
+      document.getElementById('playerArtist').innerText = track.artist;
+      document.getElementById('durationTime').innerText = track.duration;
+
+      updatePlayButtonUI();
+
+      // If lyrics tab open, re-render
+      if (activeTab === 'lyrics') {
+        switchTab('lyrics');
+      }
+    }
+
+    function togglePlayPause() {
+      if (!currentTrack) {
+        playTrack(masterCatalog[0].id);
+        return;
+      }
+
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+      } else {
+        audio.play();
+        isPlaying = true;
+      }
+      updatePlayButtonUI();
+    }
+
+    function updatePlayButtonUI() {
+      const btn = document.getElementById('mainPlayBtn');
+      const eq = document.getElementById('eqVisualizer');
+      if (isPlaying) {
+        btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+        eq.classList.remove('hidden');
+        eq.classList.add('flex');
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-play ml-0.5"></i>';
+        eq.classList.remove('flex');
+        eq.classList.add('hidden');
+      }
+    }
+
+    function playNext() {
+      const catalog = getFullCatalog();
+      if (!currentTrack || catalog.length === 0) return;
+      
+      let nextIdx;
+      if (isShuffle) {
+        nextIdx = Math.floor(Math.random() * catalog.length);
+      } else {
+        const curIdx = catalog.findIndex(t => t.id === currentTrack.id);
+        nextIdx = (curIdx + 1) % catalog.length;
+      }
+      playTrack(catalog[nextIdx].id);
+    }
+
+    function playPrev() {
+      const catalog = getFullCatalog();
+      if (!currentTrack || catalog.length === 0) return;
+      const curIdx = catalog.findIndex(t => t.id === currentTrack.id);
+      const prevIdx = (curIdx - 1 + catalog.length) % catalog.length;
+      playTrack(catalog[prevIdx].id);
+    }
+
+    function updatePlaybackProgress() {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      document.getElementById('progressFill').style.width = pct + '%';
+      
+      document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+
+      // Synchronize Lyrics active highlight
+      if (activeTab === 'lyrics' && currentTrack && currentTrack.lyrics) {
+        const time = audio.currentTime;
+        let activeIdx = 0;
+        currentTrack.lyrics.forEach((line, idx) => {
+          if (time >= line.time) activeIdx = idx;
+        });
+
+        currentTrack.lyrics.forEach((_, idx) => {
+          const el = document.getElementById(`lyric-${idx}`);
+          if (el) {
+            if (idx === activeIdx) {
+              el.classList.add('active-lyric');
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+              el.classList.remove('active-lyric');
+            }
+          }
+        });
+      }
+    }
+
+    function seekTrack(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      if (audio.duration) {
+        audio.currentTime = pos * audio.duration;
+      }
+    }
+
+    function setVolume(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      audio.volume = Math.max(0, Math.min(1, pos));
+      document.getElementById('volumeFill').style.width = (pos * 100) + '%';
+    }
+
+    function jumpToLyricTime(seconds) {
+      if (audio) {
+        audio.currentTime = seconds;
+      }
+    }
+
+    function toggleShuffle() {
+      isShuffle = !isShuffle;
+      document.getElementById('shuffleBtn').classList.toggle('text-[#ff2a85]', isShuffle);
+    }
+
+    function toggleRepeat() {
+      isRepeat = !isRepeat;
+      document.getElementById('repeatBtn').classList.toggle('text-[#ff2a85]', isRepeat);
+    }
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function handleLocalFileUpload(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      Array.from(files).forEach((file, index) => {
+        const objectUrl = URL.createObjectURL(file);
+        const newTrack = {
+          id: `local_${Date.now()}_${index}`,
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          artist: "Local Upload",
+          album: "Device Files",
+          cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300",
+          audioUrl: objectUrl,
+          duration: "Local",
+          free: true,
+          isLocal: true,
+          lyrics: [{ time: 0, text: "Local Audio File Playing" }]
+        };
+        localTracks.push(newTrack);
+      });
+
+      alert(`Successfully added ${files.length} song(s) from your device!`);
+      switchTab('library');
+    }
+
+    function renderSidebarPlaylists() {
+      const container = document.getElementById('sidebarPlaylistsList');
+      container.innerHTML = playlists.map(pl => `
+        <div onclick="openPlaylistView('${pl.id}')" class="flex items-center justify-between p-2 rounded-lg hover:bg-[#1c132e] cursor-pointer group text-xs text-[#a395b8] hover:text-white">
+          <span class="truncate font-semibold">${pl.name}</span>
+          <button onclick="deletePlaylist(event, '${pl.id}')" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 px-1">
+            <i class="fa-solid fa-trash-can text-[10px]"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function openCreatePlaylistModal() {
+      document.getElementById('playlistModal').classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closePlaylistModal() {
+      document.getElementById('playlistModal').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function confirmCreatePlaylist() {
+      const name = document.getElementById('playlistNameInput').value.trim();
+      if (!name) return;
+      playlists.push({ id: `pl_${Date.now()}`, name: name, tracks: [] });
+      document.getElementById('playlistNameInput').value = '';
+      closePlaylistModal();
+      renderSidebarPlaylists();
+    }
+
+    function deletePlaylist(e, plId) {
+      e.stopPropagation();
+      playlists = playlists.filter(p => p.id !== plId);
+      renderSidebarPlaylists();
+      if (activeTab === 'home') switchTab('home');
+    }
+
+    function openPlaylistView(plId) {
+      const pl = playlists.find(p => p.id === plId);
+      if (!pl) return;
+      const fullCatalog = getFullCatalog();
+      const plTracks = fullCatalog.filter(t => pl.tracks.includes(t.id));
+
+      const container = document.getElementById('viewContainer');
+      container.innerHTML = `
+        <div class="flex items-center gap-6">
+          <div class="w-32 h-32 rounded-2xl bg-gradient-to-tr from-[#9d4edd] to-[#ff2a85] flex items-center justify-center text-white text-4xl shadow-xl shadow-[#ff2a85]/20">
+            <i class="fa-solid fa-music"></i>
+          </div>
+          <div>
+            <span class="text-xs font-bold text-[#ff2a85] uppercase tracking-wider">Playlist</span>
+            <h1 class="text-3xl font-black text-white">${pl.name}</h1>
+            <p class="text-xs text-[#a395b8] mt-1">${plTracks.length} tracks included</p>
+          </div>
+        </div>
+        ${renderTrackTable(plTracks)}
+      `;
+    }
+
+    function openAddToPlaylistMenu(e, trackId) {
+      const plNames = playlists.map(p => p.name).join(", ");
+      const choice = prompt(`Type playlist name to add song (${plNames}):`);
+      if (choice) {
+        const targetPl = playlists.find(p => p.name.toLowerCase() === choice.toLowerCase().trim());
+        if (targetPl) {
+          if (!targetPl.tracks.includes(trackId)) {
+            targetPl.tracks.push(trackId);
+            alert(`Added to playlist "${targetPl.name}"!`);
+          } else {
+            alert('Song is already in this playlist!');
+          }
+        } else {
+          alert('Playlist not found!');
+        }
+      }
+    }
+
+    // Search and Artist Filtering
+    function filterByArtist(artistId, name) {
+      const filtered = masterCatalog.filter(t => t.artistId === artistId);
+      const container = document.getElementById('viewContainer');
+      container.innerHTML = `
+        <div class="flex items-center gap-6">
+          <img src="${filtered[0].cover}" class="w-32 h-32 rounded-full object-cover border-2 border-[#ff2a85] shadow-xl">
+          <div>
+            <span class="text-xs font-bold text-[#ff2a85] uppercase tracking-wider">Verified Artist</span>
+            <h1 class="text-3xl font-black text-white">${name}</h1>
+            <p class="text-xs text-[#a395b8] mt-1">Catalog & Popular Singles</p>
+          </div>
+        </div>
+        ${renderTrackTable(filtered)}
+      `;
+    }
+
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const catalog = getFullCatalog();
+      const filtered = catalog.filter(t => 
+        t.title.toLowerCase().includes(query) ||
+        t.artist.toLowerCase().includes(query) ||
+        t.album.toLowerCase().includes(query)
+      );
+
+      if (activeTab !== 'search') {
+        switchTab('search');
+      }
+      
+      const resContainer = document.getElementById('searchResults');
+      if (resContainer) {
+        resContainer.innerHTML = renderTrackTable(filtered);
+      }
+    }
+
+    function openSubModal() {
+      document.getElementById('subModal').classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeSubModal() {
+      document.getElementById('subModal').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function selectPassPlan(type) {
+      selectedPass = type;
+      if (type === 'monthly') {
+        document.getElementById('planMonthly').classList.add('border-[#ff2a85]', 'bg-[#291b42]');
+        document.getElementById('planYearly').classList.remove('border-[#ff2a85]', 'bg-[#291b42]');
+      } else {
+        document.getElementById('planYearly').classList.add('border-[#ff2a85]', 'bg-[#291b42]');
+        document.getElementById('planMonthly').classList.remove('border-[#ff2a85]', 'bg-[#291b42]');
+      }
+    }
+
+    function processPaymentSimulator() {
+      isPremium = true;
+      document.getElementById('userBadge').innerText = 'Premium VIP Pass';
+      document.getElementById('sidebarUpgradeBanner').style.display = 'none';
+      closeSubModal();
+
+      alert('🎉 Payment Successful! Your Dopamine Premium VIP Pass is active. All songs unlocked!');
+      switchTab(activeTab);
+    }
+  </script>
+</body>
+</html>
